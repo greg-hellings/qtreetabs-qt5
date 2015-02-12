@@ -17,6 +17,11 @@ OpenTab::OpenTab(QTreeWidgetItem* parent, const QString& text, QWidget* view) :
 {
 }
 
+void OpenTab::setText(const QString &text)
+{
+    QTreeWidgetItem::setText(0, text);
+}
+
 OpenTab* OpenTab::closestSibling(QTreeWidgetItem* parent)
 {
     OpenTab* target = 0;

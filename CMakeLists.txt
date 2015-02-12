@@ -22,7 +22,8 @@ set(HEADERS
     src/qtreetabs.h
     src/opentab.h)
 set(DIST_HEADERS
-    src/qtreetabs.h)
+    src/qtreetabs.h
+    src/opentab.h)
 set(UI
     src/qtreetabs.ui)
 # Versioning information

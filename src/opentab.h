@@ -18,6 +18,8 @@ public:
 
     OpenTab* closestSibling(QTreeWidgetItem* closestRelative);
     void addChildren(const QList<QTreeWidgetItem *> &children);
+
+    void setText(const QString& text);
 signals:
 
 public slots:
