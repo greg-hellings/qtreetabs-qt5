@@ -3,14 +3,14 @@
 
 #include <QWidget>
 #include <QList>
+#include <QMap>
 
-namespace Ui {
-class SideTabs;
-}
-
+// Advanced declarations
 class OpenTab;
-class QTreeWidgetItem;
-class QTreeWidget;
+class QWebEngineView;
+class QStackedWidget;
+class QWebEngineProfile;
+class QWebChannel;
 
 class QTreeTabs : public QWidget
 {
@@ -19,33 +19,41 @@ public:
     explicit QTreeTabs(QWidget *parent = 0);
     ~QTreeTabs();
 
-    OpenTab* newTab(QWidget* widget, bool childOfActive = false, bool displayNow = true);
-    OpenTab* newTab(QWidget* widget, QWidget* parent, bool displayNow = true);
+    OpenTab* addItem(QWidget* widget, bool childOfActive = false, bool displayNow = true);
 
-    void closeCurrentTab(bool suppressSignals = false);
-    OpenTab* closeTab(OpenTab* tab, bool suppressSignals = false);
+    OpenTab* tabFromUuid(const QString& uuid);
+//    void closeCurrentTab(bool suppressSignals = false);
+//    OpenTab* closeTab(OpenTab* tab, bool suppressSignals = false);
 
     OpenTab* currentTab() const;
     void setCurrentTab(OpenTab* tab);
-    QList<OpenTab*>* openTabs();
-    OpenTab* findTabByWidget(QWidget* widget);
+//    QList<OpenTab*>* openTabs();
+//    OpenTab* findTabByWidget(QWidget* widget);
 signals:
-    void tabChanged(OpenTab* oldTab, OpenTab* newTab);
-    void closedTab(int topLevelTabsRemaining);
+    void onTabCreated(const QString& uuid);
+    void onTabRequested();
+    // Signifies that the text from an underlying tab has changed. Should only be called
+    // by the JavaScript code that's part of this widget. This signal is a hack around a
+    // limitation of the QWebChannel code. If that code is ever updated, then this signal
+    // will probably go away
+    void onTextChanged(const QString& uuid, const QString& text);
+    void onIconUrlChanged(const QString& uuid, const QString& url);
+    void onTabChanged(OpenTab* oldTab,  OpenTab* newTab);
+//    void closedTab(int topLevelTabsRemaining);
 
-private slots:
-    void tabChanged();
+public slots:
+    void tabRequested();
+    void onTextChanged(OpenTab* tab, const QString& text);
+    void onIconUrlChanged(OpenTab* tab, const QString& url);
+    void setCurrentTab(const QString& uuid);
 
 private:
-    Ui::SideTabs *ui;
-    OpenTab* openTab;
-    OpenTab* findTabByWidgetRecursion(QTreeWidgetItem* item, QWidget* widget);
-
-protected:
-    void setCurrentWidget(QWidget* newCurrent);
-    virtual void configureNewTab(OpenTab* newTab);
-    virtual OpenTab* getNewOpenTab(QWidget* content, QTreeWidgetItem* parent);
-    virtual OpenTab* getNewOpenTab(QWidget* content, QTreeWidget* parent);
+    QWebEngineView* m_tabs;
+    QStackedWidget* m_widgets;
+    QWebEngineProfile* m_profile;
+    OpenTab* m_currentTab;
+    QMap<QString, OpenTab*>* m_map;
+    QWebChannel* m_channel;
 };
 
 #endif // MAINTABS_H

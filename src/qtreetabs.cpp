@@ -1,163 +1,117 @@
 #include "qtreetabs.h"
-#include "ui_qtreetabs.h"
 
 #include "opentab.h"
+#include "js/localscript.h"
 
-#include <QItemSelectionModel>
-#include <QSizePolicy>
+#include <QWebEngineView>
+#include <QWebEnginePage>
+#include <QWebEngineProfile>
+#include <QWebEngineScriptCollection>
+#include <QWebChannel>
+#include <QStackedWidget>
+#include <QSplitter>
+#include <QMap>
+#include <QLayout>
+#include <QUrl>
+#include <iostream>
 
 QTreeTabs::QTreeTabs(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::SideTabs()),
-    openTab(NULL)
+    m_profile(new QWebEngineProfile("tabs", this)),
+    m_currentTab(NULL),
+    m_map(new QMap<QString, OpenTab*>())
 {
-    this->ui->setupUi(this);
+    // Setup the basic layout
+    QSplitter* splitter = new QSplitter(Qt::Orientation::Horizontal, this);
+    this->m_tabs = new QWebEngineView(splitter);
+    this->m_tabs->setMinimumWidth(80);
+    this->m_widgets = new QStackedWidget(splitter);
+    this->m_widgets->setMinimumWidth(300);
 
-    this->connect(this->ui->tabs, SIGNAL(itemSelectionChanged()), SLOT(tabChanged()));
+    // Create and configure the QWebChannel for communication between the
+    // JavaScript in the tabs view and ourselves
+    this->m_channel = new QWebChannel(this);
+    this->m_channel->registerObject("god", this);
 
-    this->ui->tabs->setFocusPolicy(Qt::NoFocus);
-    this->ui->tabs->setSelectionMode(QAbstractItemView::SingleSelection);
+    // Create the WebEngine instance that will do the Lord's work
+    QWebEnginePage* page = new QWebEnginePage(this->m_profile, this->m_tabs);
+    this->m_tabs->setPage(page);
+    Q_INIT_RESOURCE(web);
+    this->m_tabs->setUrl(QUrl("qrc:///tabs.html"));
+    page->setWebChannel(this->m_channel);
+
+    qRegisterMetaType<OpenTab*>();
 }
 
 QTreeTabs::~QTreeTabs()
 {
-    delete ui;
+    // Nothing here?
 }
 
-OpenTab* QTreeTabs::getNewOpenTab(QWidget* content, QTreeWidgetItem *parent)
+OpenTab* QTreeTabs::addItem(QWidget *widget, bool childOfActive, bool displayNow)
 {
-    return new OpenTab(parent, QString(""), content);
-}
+    // Create new tab
+    OpenTab* tab = new OpenTab(widget);
 
-OpenTab* QTreeTabs::getNewOpenTab(QWidget *content, QTreeWidget *parent)
-{
-    return new OpenTab(parent, QString(""), content);
-}
+    // Currently, this doesn't work - items registered after the first client connects are
+    // not able to be registered into the namespace. When that feature is lifted, this next
+    // line will become relevant once again
+//    this->m_channel->registerObject(tab->uuid(), tab);
+    tab->connect(tab, &OpenTab::onTextChanged, this, static_cast<void (QTreeTabs::*)(OpenTab*, const QString&)> (&QTreeTabs::onTextChanged));
+    tab->connect(tab, &OpenTab::onIconUrlChanged, this, static_cast<void (QTreeTabs::*)(OpenTab*, const QString&)> (&QTreeTabs::onIconUrlChanged));
 
-OpenTab* QTreeTabs::newTab(QWidget *widget, bool childOfActive, bool displayNow)
-{
-    OpenTab* tab = 0;
-    if (childOfActive) {
-        tab = this->getNewOpenTab(widget, this->currentTab());
-        this->currentTab()->setExpanded(true);
-    } else
-        tab = this->getNewOpenTab(widget, this->ui->tabs);
-    this->configureNewTab(tab);
-    if (displayNow || this->openTab == NULL)
-        this->setCurrentTab(tab);
+    this->m_map->insert(tab->uuid(), tab);
+    this->m_widgets->addWidget(widget);
+    // Notify listeners of new tab creation
+    emit onTabCreated(tab->uuid());
+    if (displayNow) {
+        this->m_widgets->setCurrentWidget(widget);
+        OpenTab* previous = this->m_currentTab;
+        this->m_currentTab = tab;
+        emit onTabChanged(previous, tab);
+
+    }
 
     return tab;
 }
 
-OpenTab* QTreeTabs::newTab(QWidget *widget, QWidget *parent, bool displayNow)
+OpenTab* QTreeTabs::tabFromUuid(const QString &uuid)
 {
-    OpenTab* tab = this->getNewOpenTab(widget, this->findTabByWidget(parent));
-    this->configureNewTab(tab);
-    if (displayNow || this->openTab == NULL)
-        this->setCurrentTab(tab);
-
-    return tab;
+    return this->m_map->value(uuid, NULL);
 }
 
-void QTreeTabs::closeCurrentTab(bool suppressSignals)
+void QTreeTabs::tabRequested()
 {
-    OpenTab* oldTab = this->openTab;
-    OpenTab* newCurrent = this->closeTab(this->openTab, suppressSignals);
-    // And of course we must be sure to always have some sort of tab
-    if (newCurrent != NULL) {
-        this->openTab = dynamic_cast<OpenTab*>(newCurrent);
-        this->ui->tabs->clearSelection();
-        this->openTab->setSelected(true);
-        this->openTab->setExpanded(true);
-    }
-    if (!suppressSignals) {
-        emit tabChanged(oldTab, newCurrent);
-    }
+    emit onTabRequested();
 }
 
-OpenTab* QTreeTabs::closeTab(OpenTab* tab, bool suppressSignals)
+void QTreeTabs::setCurrentTab(const QString &uuid)
 {
-    // Remove the widget from the stack
-    this->ui->widgets->removeWidget(tab->widget());
-    // Promote first child to parent if one exists
-    QTreeWidgetItem* newCurrent = tab->removeSelf();
-    if (!suppressSignals) {
-        emit closedTab(this->ui->tabs->invisibleRootItem()->childCount());
-    }
-    return dynamic_cast<OpenTab*>(newCurrent);
+    this->setCurrentTab(this->tabFromUuid(uuid));
 }
 
-void QTreeTabs::configureNewTab(OpenTab* newTab)
+void QTreeTabs::setCurrentTab(OpenTab *tab)
 {
-    this->ui->widgets->addWidget(newTab->widget());
-}
-
-OpenTab* QTreeTabs::currentTab() const
-{
-    return this->openTab;
-}
-
-void QTreeTabs::setCurrentTab(OpenTab* newTab)
-{
-    OpenTab* oldTab = this->openTab;
-    this->openTab = newTab;
-    if (!newTab->isSelected())
-        newTab->setSelected(true);
-    if (oldTab != NULL && oldTab != newTab)
-        oldTab->setSelected(false);
-    this->ui->widgets->setCurrentWidget(newTab->widget());
-    emit tabChanged(oldTab, newTab);
-}
-
-void QTreeTabs::setCurrentWidget(QWidget *newCurrentWidget)
-{
-    OpenTab* newTab = this->findTabByWidget(newCurrentWidget);
-    if (newTab != NULL) {
-        this->setCurrentTab(newTab);
-    }
-}
-
-void QTreeTabs::tabChanged()
-{
-    QList<QTreeWidgetItem*> tabs = this->ui->tabs->selectedItems();
-    // I don't yet know how to grok multiple tab selection and we'll deal with a default
-    // selection at a later time, if deselection is possible
-    if (tabs.count() == 1) {
-        OpenTab* tab = dynamic_cast<OpenTab*>(tabs.at(0));
-        this->setCurrentTab(tab);
-        tab->widget()->setFocus();
-    }
-}
-
-OpenTab* QTreeTabs::findTabByWidget(QWidget *view)
-{
-    QTreeWidgetItem* item = this->ui->tabs->invisibleRootItem();
-    return this->findTabByWidgetRecursion(item, view);
-}
-
-OpenTab* QTreeTabs::findTabByWidgetRecursion(QTreeWidgetItem* item, QWidget* view)
-{
-    bool found = false;
-    for (int i = 0; i < item->childCount() && !found; ++i) {
-        OpenTab* tab = dynamic_cast<OpenTab*>(item->child(i));
-        if (tab->widget() == view) {
-            return tab;
-        }
-        tab = this->findTabByWidgetRecursion(tab, view);
-        if (tab != NULL) {
-            return tab;
+    if (tab != NULL) {
+        if (this->m_widgets->indexOf(tab->widget()) != -1) {
+            this->m_widgets->setCurrentWidget(tab->widget());
+            OpenTab* previous = this->m_currentTab;
+            this->m_currentTab = tab;
+            emit onTabChanged(previous, tab);
         }
     }
-
-    return NULL;
 }
 
-QList<OpenTab*>* QTreeTabs::openTabs()
+OpenTab* QTreeTabs::currentTab() const {
+    return this->m_currentTab;
+}
+
+void QTreeTabs::onTextChanged(OpenTab *tab, const QString &text)
 {
-    QList<OpenTab*>* openTabs = new QList<OpenTab*>();
-    QTreeWidgetItem* root = this->ui->tabs->invisibleRootItem();
-    for (int i = 0; i < root->childCount(); ++i) {
-        openTabs->append(dynamic_cast<OpenTab*>(root->child(i)));
-    }
-    return openTabs;
+    emit onTextChanged(tab->uuid(), text);
+}
+
+void QTreeTabs::onIconUrlChanged(OpenTab *tab, const QString &url)
+{
+    emit onIconUrlChanged(tab->uuid(), url);
 }

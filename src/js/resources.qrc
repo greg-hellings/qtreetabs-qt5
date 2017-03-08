@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>tabs.js</file>
+        <file>jQuery.min.js</file>
+        <file>tab.class.js</file>
+        <file>tabcreator.class.js</file>
+    </qresource>
+</RCC>

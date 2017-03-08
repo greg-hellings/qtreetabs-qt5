@@ -2,3 +2,6 @@ build/
 **.obj
 *.user
 *.user.*
+CMakeFiles
+cmake_install.cmake
+**.swp
