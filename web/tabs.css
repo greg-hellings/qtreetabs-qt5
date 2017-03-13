@@ -1,6 +1,6 @@
 body {
 	padding-left: 10px;
-	background-color: rgba(0, 0, 0, 0.0);
+	background-color: #dfdfdf;
 	overflow: hidden;
 }
 
@@ -9,8 +9,8 @@ body {
 }
 
 .tab {
-	border-radius-left: 4px;
-	border: 1px solid black;
+	border-radius: 4px 0 0 4px;
+	border: 1px solid #777777;
 	border-right: 0;
 
 	margin-bottom: 2px;
@@ -19,7 +19,7 @@ body {
 	padding-bottom: 3px;
 	padding-left: 34px;
 
-	background-color: #faebd7;
+	background-color: #d3d3d3;
 	background-size: 24px 24px;
 	background-repeat: no-repeat;
 	background-position: 2px 0px;
@@ -28,6 +28,6 @@ body {
 }
 
 .tab.active {
-	border-width: 2px;
-	background-color: #deb887;
+	border: 2px solid #303030;
+	background-color: #b3b3b3;
 }
