@@ -49,6 +49,5 @@ TabCreator.prototype.onTabChanged = function(old, current) {
 }
 
 TabCreator.prototype.onTabClick = function(uuid) {
-	console.error('Heard click on ' + uuid);
 	this.god.setCurrentTab(uuid);
 }
