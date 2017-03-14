@@ -57,8 +57,8 @@ OpenTab* QTreeTabs::addItem(QWidget *widget, bool childOfActive, bool displayNow
     // not able to be registered into the namespace. When that feature is lifted, this next
     // line will become relevant once again
 //    this->m_channel->registerObject(tab->uuid(), tab);
-    tab->connect(tab, &OpenTab::onTextChanged, this, static_cast<void (QTreeTabs::*)(OpenTab*, const QString&)> (&QTreeTabs::onTextChanged));
-    tab->connect(tab, &OpenTab::onIconUrlChanged, this, static_cast<void (QTreeTabs::*)(OpenTab*, const QString&)> (&QTreeTabs::onIconUrlChanged));
+    tab->connect(tab, &OpenTab::onTextChanged, this, &QTreeTabs::onTextChanged);
+    tab->connect(tab, &OpenTab::onIconUrlChanged, this, &QTreeTabs::onIconUrlChanged);
 
     this->m_map->insert(tab->uuid(), tab);
     this->m_widgets->addWidget(widget);
