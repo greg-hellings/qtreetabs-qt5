@@ -75,16 +75,6 @@ OpenTab* QTreeTabs::addItem(QWidget *widget, bool childOfActive, bool displayNow
     return tab;
 }
 
-OpenTab* QTreeTabs::tabFromUuid(const QString &uuid)
-{
-    return this->m_map->value(uuid, NULL);
-}
-
-void QTreeTabs::onTabRequested()
-{
-    emit tabRequested();
-}
-
 void QTreeTabs::setCurrentTab(const QString &uuid)
 {
     this->setCurrentTab(this->tabFromUuid(uuid));
@@ -106,6 +96,29 @@ OpenTab* QTreeTabs::currentTab() const {
     return this->m_currentTab;
 }
 
+OpenTab* QTreeTabs::tabFromUuid(const QString &uuid) const
+{
+    return this->m_map->value(uuid, NULL);
+}
+
+QList<OpenTab*>* QTreeTabs::openTabs() const
+{
+    QList<OpenTab*>* tabs = new QList<OpenTab*>(this->m_map->values());
+    return tabs;
+
+}
+
+OpenTab* QTreeTabs::findTabByWidget(QWidget *widget) const
+{
+    for(QMap<QString, OpenTab*>::iterator it = this->m_map->begin(); it != this->m_map->end(); it++) {
+        if (it.value()->widget() == widget) {
+            return it.value();
+        }
+    }
+
+    return NULL;
+}
+
 void QTreeTabs::onTextChanged(const QString &text)
 {
     emit textChanged(((OpenTab*)this->sender())->uuid(), text);
@@ -114,4 +127,9 @@ void QTreeTabs::onTextChanged(const QString &text)
 void QTreeTabs::onIconUrlChanged(const QString &url)
 {
     emit iconUrlChanged(((OpenTab*)this->sender())->uuid(), url);
+}
+
+void QTreeTabs::onTabRequested()
+{
+    emit tabRequested();
 }

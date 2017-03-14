@@ -21,14 +21,14 @@ public:
 
     OpenTab* addItem(QWidget* widget, bool childOfActive = false, bool displayNow = true);
 
-    OpenTab* tabFromUuid(const QString& uuid);
+    OpenTab* tabFromUuid(const QString& uuid) const;
 //    void closeCurrentTab(bool suppressSignals = false);
 //    OpenTab* closeTab(OpenTab* tab, bool suppressSignals = false);
 
     OpenTab* currentTab() const;
     void setCurrentTab(OpenTab* tab);
-//    QList<OpenTab*>* openTabs();
-//    OpenTab* findTabByWidget(QWidget* widget);
+    QList<OpenTab*>* openTabs() const;
+    OpenTab* findTabByWidget(QWidget* widget) const;
 signals:
     void tabCreated(const QString& uuid);
     void tabRequested();
