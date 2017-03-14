@@ -30,19 +30,19 @@ public:
 //    QList<OpenTab*>* openTabs();
 //    OpenTab* findTabByWidget(QWidget* widget);
 signals:
-    void onTabCreated(const QString& uuid);
-    void onTabRequested();
+    void tabCreated(const QString& uuid);
+    void tabRequested();
     // Signifies that the text from an underlying tab has changed. Should only be called
     // by the JavaScript code that's part of this widget. This signal is a hack around a
     // limitation of the QWebChannel code. If that code is ever updated, then this signal
     // will probably go away
-    void onTextChanged(const QString& uuid, const QString& text);
-    void onIconUrlChanged(const QString& uuid, const QString& url);
-    void onTabChanged(OpenTab* oldTab,  OpenTab* newTab);
+    void textChanged(const QString& uuid, const QString& text);
+    void iconUrlChanged(const QString& uuid, const QString& url);
+    void tabChanged(OpenTab* oldTab,  OpenTab* newTab);
 //    void closedTab(int topLevelTabsRemaining);
 
 public slots:
-    void tabRequested();
+    void onTabRequested();
     void onTextChanged(OpenTab* tab, const QString& text);
     void onIconUrlChanged(OpenTab* tab, const QString& url);
     void setCurrentTab(const QString& uuid);

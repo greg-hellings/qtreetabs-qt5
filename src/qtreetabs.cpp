@@ -63,12 +63,12 @@ OpenTab* QTreeTabs::addItem(QWidget *widget, bool childOfActive, bool displayNow
     this->m_map->insert(tab->uuid(), tab);
     this->m_widgets->addWidget(widget);
     // Notify listeners of new tab creation
-    emit onTabCreated(tab->uuid());
+    emit tabCreated(tab->uuid());
     if (displayNow) {
         this->m_widgets->setCurrentWidget(widget);
         OpenTab* previous = this->m_currentTab;
         this->m_currentTab = tab;
-        emit onTabChanged(previous, tab);
+        emit tabChanged(previous, tab);
 
     }
 
@@ -80,9 +80,9 @@ OpenTab* QTreeTabs::tabFromUuid(const QString &uuid)
     return this->m_map->value(uuid, NULL);
 }
 
-void QTreeTabs::tabRequested()
+void QTreeTabs::onTabRequested()
 {
-    emit onTabRequested();
+    emit tabRequested();
 }
 
 void QTreeTabs::setCurrentTab(const QString &uuid)
@@ -97,7 +97,7 @@ void QTreeTabs::setCurrentTab(OpenTab *tab)
             this->m_widgets->setCurrentWidget(tab->widget());
             OpenTab* previous = this->m_currentTab;
             this->m_currentTab = tab;
-            emit onTabChanged(previous, tab);
+            emit tabChanged(previous, tab);
         }
     }
 }
@@ -108,10 +108,10 @@ OpenTab* QTreeTabs::currentTab() const {
 
 void QTreeTabs::onTextChanged(OpenTab *tab, const QString &text)
 {
-    emit onTextChanged(tab->uuid(), text);
+    emit textChanged(tab->uuid(), text);
 }
 
 void QTreeTabs::onIconUrlChanged(OpenTab *tab, const QString &url)
 {
-    emit onIconUrlChanged(tab->uuid(), url);
+    emit iconUrlChanged(tab->uuid(), url);
 }

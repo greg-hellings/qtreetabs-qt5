@@ -23,11 +23,11 @@ jQuery(function() {
 		// Report to the heavens when user requests a new tab
 		qtab.doc.click(function(event) {
 			if (event.which == 2) {
-				qtab.god.tabRequested();
+				qtab.god.onTabRequested();
 			}
 		});
 		qtab.doc.dblclick(function() {
-			qtab.god.tabRequested();
+			qtab.god.onTabRequested();
 		});
 
 		// Listen to god and add a new tab when he tells us to

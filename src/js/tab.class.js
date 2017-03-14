@@ -11,7 +11,7 @@ function Tab(uuid, channel) {
 	// Listen to events from on high
 	if ( channel && channel.onTextChanged ) {
 		console.error('Code works, now');
-		channel.onTextChanged.connect(this.onTextChanged.bind(this));
+		channel.onTextChanged.connect(this.progTextChanged.bind(this));
 	}
 
 	// Add listeners to my dom
@@ -22,11 +22,11 @@ function Tab(uuid, channel) {
 }
 
 /* Listeners for events from the C++ world */
-Tab.prototype.onTextChanged = function(text) {
+Tab.prototype.progTextChanged = function(text) {
 	this.text.text(text);
 }
 
-Tab.prototype.onIconUrlChanged = function(url) {
+Tab.prototype.progIconUrlChanged = function(url) {
 	this.dom.css('background-image', 'url(' + url + ')');
 }
 

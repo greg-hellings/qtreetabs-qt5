@@ -2,16 +2,16 @@ function TabCreator(god) {
 	this.god = god;
 	this.__tabs = {};
 
-	this.god.onTabCreated.connect(this.onTabCreated.bind(this));
+	this.god.tabCreated.connect(this.progTabCreated.bind(this));
 	// When QWebchannel is updated to allow post-attach registration, this becomes moot
-	this.god.onTextChanged.connect(this.onTextChanged.bind(this));
-	this.god.onIconUrlChanged.connect(this.onIconUrlChanged.bind(this));
-	this.god.onTabChanged.connect(this.onTabChanged.bind(this));
+	this.god.textChanged.connect(this.progTextChanged.bind(this));
+	this.god.iconUrlChanged.connect(this.progIconUrlChanged.bind(this));
+	this.god.tabChanged.connect(this.onTabChanged.bind(this));
 
 	return this;
 }
 
-TabCreator.prototype.onTabCreated = function(uuid) {
+TabCreator.prototype.progTabCreated = function(uuid) {
 	var tab = new Tab(uuid);
 
 	tab.click(this.onTabClick.bind(this));
@@ -20,24 +20,24 @@ TabCreator.prototype.onTabCreated = function(uuid) {
 }
 
 // When QWebchannel is updated to allow post-attach registration, this becomes moot
-TabCreator.prototype.onTextChanged = function(uuid, newText) {
+TabCreator.prototype.progTextChanged = function(uuid, newText) {
 	var tab;
 	if( !(uuid in this.__tabs) ) {
 		console.error('Unknown tab');
 		return;
 	}
 	tab = this.__tabs[uuid];
-	tab.onTextChanged(newText);
+	tab.progTextChanged(newText);
 }
 
-TabCreator.prototype.onIconUrlChanged = function(uuid, newUrl) {
+TabCreator.prototype.progIconUrlChanged = function(uuid, newUrl) {
 	var tab;
 	if( !(uuid in this.__tabs) ) {
 		console.error('Unknown tab');
 		return;
 	}
 	tab = this.__tabs[uuid];
-	tab.onIconUrlChanged(newUrl);
+	tab.progIconUrlChanged(newUrl);
 }
 
 TabCreator.prototype.onTabChanged = function(old, current) {

@@ -15,7 +15,7 @@ public slots:
     void whenTabRequested() {
         QLineEdit* line = new QLineEdit();
         OpenTab* tab = tabs->addItem(line, true, true);
-        tab->connect(line, &QLineEdit::textChanged, tab, &OpenTab::setIconUrl);
+        tab->connect(line, &QLineEdit::textChanged, tab, &OpenTab::setText);
     }
 };
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     window.activateWindow();
 
     Test* test = new Test();
-    test->connect(tabs, &QTreeTabs::onTabRequested, test, &Test::whenTabRequested);
+    test->connect(tabs, &QTreeTabs::tabRequested, test, &Test::whenTabRequested);
 
     return app.exec();
 }
