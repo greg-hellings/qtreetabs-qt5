@@ -10,7 +10,6 @@ class OpenTab : public QObject
     Q_PROPERTY(QString text READ text WRITE setText NOTIFY onTextChanged)
     Q_PROPERTY(QString iconUrl READ iconUrl WRITE setIconUrl NOTIFY onIconUrlChanged)
     Q_PROPERTY(QWidget* widget READ widget)
-    Q_PROPERTY(QString uuid READ uuid)
 public:
     OpenTab(QWidget* view, const QString& uuid = QUuid::createUuid().toString());
     OpenTab(const OpenTab&);
@@ -22,18 +21,18 @@ public:
     QString uuid() const { return this->m_uuid; }
 
 signals:
-    void onTextChanged(OpenTab* tab, const QString& text);
-    void onIconUrlChanged(OpenTab* tab, const QString& url);
+    void onTextChanged(const QString& text);
+    void onIconUrlChanged(const QString& url);
 
 public slots:
 
     void setText(const QString& text) {
         this->m_text = text;
-        emit onTextChanged(this, text);
+        emit onTextChanged(text);
     }
     void setIconUrl(const QString& url) {
         this->m_iconUrl = url;
-        emit onIconUrlChanged(this, url);
+        emit onIconUrlChanged(url);
     }
 
 private:

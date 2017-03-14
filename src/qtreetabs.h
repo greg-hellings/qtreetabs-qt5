@@ -43,8 +43,8 @@ signals:
 
 public slots:
     void onTabRequested();
-    void onTextChanged(OpenTab* tab, const QString& text);
-    void onIconUrlChanged(OpenTab* tab, const QString& url);
+    void onTextChanged(const QString& text);
+    void onIconUrlChanged(const QString& url);
     void setCurrentTab(const QString& uuid);
 
 private:

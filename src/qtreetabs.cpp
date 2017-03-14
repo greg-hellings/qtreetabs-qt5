@@ -106,12 +106,12 @@ OpenTab* QTreeTabs::currentTab() const {
     return this->m_currentTab;
 }
 
-void QTreeTabs::onTextChanged(OpenTab *tab, const QString &text)
+void QTreeTabs::onTextChanged(const QString &text)
 {
-    emit textChanged(tab->uuid(), text);
+    emit textChanged(((OpenTab*)this->sender())->uuid(), text);
 }
 
-void QTreeTabs::onIconUrlChanged(OpenTab *tab, const QString &url)
+void QTreeTabs::onIconUrlChanged(const QString &url)
 {
-    emit iconUrlChanged(tab->uuid(), url);
+    emit iconUrlChanged(((OpenTab*)this->sender())->uuid(), url);
 }
