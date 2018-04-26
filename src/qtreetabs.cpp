@@ -139,7 +139,7 @@ void QTreeTabs::jsRequestClose(const QString& uuid) {
 	this->m_map->remove(uuid);
 	if ( tab != NULL ) {
 		this->m_widgets->removeWidget(tab->widget());
-		emit closedTab(tab->uuid(), this->m_map->size());
+		emit closedTab(uuid, this->m_map->size());
 		delete tab;
 	}
 }
