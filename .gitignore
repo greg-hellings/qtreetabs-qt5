@@ -4,4 +4,5 @@ build/
 *.user.*
 CMakeFiles
 cmake_install.cmake
-**.swp
+*.swp
+*.swo

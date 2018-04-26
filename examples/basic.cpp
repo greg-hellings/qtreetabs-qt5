@@ -16,6 +16,7 @@ public slots:
         QLineEdit* line = new QLineEdit();
         OpenTab* tab = tabs->addItem(line, true, true);
         tab->connect(line, &QLineEdit::textChanged, tab, &OpenTab::setText);
+        tab->connect(line, &QLineEdit::textChanged, tab, &OpenTab::setIconUrl);
     }
 };
 

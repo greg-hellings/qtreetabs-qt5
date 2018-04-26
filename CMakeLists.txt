@@ -55,10 +55,10 @@ add_definitions(${Qt5Core_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5WebEngineWidgets_EXECUTABLE_COMPILE_FLAGS} -fPIC")
 
 # Add library
-add_library(qtreetabs-qt5 SHARED ${CXX_SRC} ${QRC_SRC})
-target_link_libraries(qtreetabs-qt5 Qt5::WebEngineWidgets Qt5::Widgets)
+add_library(qtreetabs SHARED ${CXX_SRC} ${QRC_SRC})
+target_link_libraries(qtreetabs Qt5::WebEngineWidgets Qt5::Widgets)
 # Installs
-install(TARGETS qtreetabs-qt5
+install(TARGETS qtreetabs
     RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
     LIBRARY DESTINATION "${LIB_INSTALL_DIR}"
     ARCHIVE DESTINATION "${LIB_INSTALL_DIR}"

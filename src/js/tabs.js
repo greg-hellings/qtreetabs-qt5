@@ -9,6 +9,16 @@ jQuery(function() {
 	window.qtab = {
 		doc : jQuery('#all'),
 		win : jQuery(window),
+		mouseListener : function(target, callable) {
+			target.on('mouseup', function(event) {
+				if (event.which == 2) {
+					callable();
+				}
+			});
+			target.dblclick(function() {
+				callable();
+			});
+		},
 		template : jQuery('<div id="template" class="tab"><img src="." /><span>New Tab</span></div>')
 	};
 	// Get some basic setup going
@@ -20,15 +30,7 @@ jQuery(function() {
 		qtab.god = channel.objects.god;
 		qtab.doc.html('');
 
-		// Report to the heavens when user requests a new tab
-		qtab.doc.click(function(event) {
-			if (event.which == 2) {
-				qtab.god.onTabRequested();
-			}
-		});
-		qtab.doc.dblclick(function() {
-			qtab.god.onTabRequested();
-		});
+		qtab.mouseListener(qtab.doc, qtab.god.onTabRequested);
 
 		// Listen to god and add a new tab when he tells us to
 		qtab.godListener = new TabCreator(qtab.god);
