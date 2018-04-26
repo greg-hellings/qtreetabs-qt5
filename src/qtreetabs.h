@@ -20,13 +20,10 @@ public:
     ~QTreeTabs();
 
     OpenTab* addItem(QWidget* widget, bool childOfActive = false, bool displayNow = true);
-
     OpenTab* tabFromUuid(const QString& uuid) const;
-//    void closeCurrentTab(bool suppressSignals = false);
-//    OpenTab* closeTab(OpenTab* tab, bool suppressSignals = false);
-
     OpenTab* currentTab() const;
     void setCurrentTab(OpenTab* tab);
+    void removeItem(OpenTab* tab);
     QList<OpenTab*>* openTabs() const;
     OpenTab* findTabByWidget(QWidget* widget) const;
 signals:
@@ -34,17 +31,18 @@ signals:
     void tabRequested();
     void textChanged(const QString& uuid, const QString& text);
     void iconUrlChanged(const QString& uuid, const QString& url);
-    void tabChanged(OpenTab* oldTab,  OpenTab* newTab);
+    void tabChanged(const QString& oldUuid, const QString& newUuid);
     void closedTab(const QString& uuid, int topLevelTabsRemaining);
 
 public slots:
-	// Specifically to hear from the JavaScript
+    // Specifically to hear from the JavaScript
     void jsRequestTab();
     void jsRequestClose(const QString& uuid);
-	// Specifically to send from the tab to the JavaScript
+    // Specifically to send from the tab to the JavaScript
     void onTextChanged(const QString& text);
     void onIconUrlChanged(const QString& url);
     void setCurrentTab(const QString& uuid);
+    void removeItem(const QString& uuid);
 
 private:
     QWebEngineView* m_tabs;

@@ -12,11 +12,13 @@ function Tab(uuid, tabCreator) {
 	// Add listeners to my dom
 	this.dom.on('mouseup', this.middleClick.bind(this));
 	this.dom.dblclick(this.requestClose.bind(this));
+	this.dom.click(this.click.bind(this));
 
 	// Listen for signals from the C++ side
 	this.__god.textChanged.connect(this.progTextChanged.bind(this));
 	this.__god.iconUrlChanged.connect(this.progIconUrlChanged.bind(this));
 	this.__god.closedTab.connect(this.removeTab.bind(this));
+	this.__god.tabChanged.connect(this.progTabChanged.bind(this));
 
 	return this;
 }
@@ -39,6 +41,10 @@ Tab.prototype.removeTab = function(uuid, remainint) {
 		this.dom.remove();
 }
 
+Tab.prototype.progTabChanged = function(oldUuid, newUuid) {
+	this.dom.text(this.__uuid);
+}
+
 /**
  * Listeners for events from the HTML world
  */
@@ -49,11 +55,17 @@ Tab.prototype.middleClick = function(event) {
 	}
 }
 
+Tab.prototype.click = function(event) {
+	this.__god.setCurrentTab(this.__uuid);
+	return false;
+}
+
 /**
  * Send events to the C++ world
  */
 Tab.prototype.requestClose = function() {
 	this.__god.jsRequestClose(this.__uuid);
+	return false;
 }
 
 Tab.prototype.activate = function() {

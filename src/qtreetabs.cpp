@@ -64,15 +64,28 @@ OpenTab* QTreeTabs::addItem(QWidget *widget, bool childOfActive, bool displayNow
     this->m_widgets->addWidget(widget);
     // Notify listeners of new tab creation
     emit tabCreated(tab->uuid());
-    if (displayNow) {
-        this->m_widgets->setCurrentWidget(widget);
-        OpenTab* previous = this->m_currentTab;
-        this->m_currentTab = tab;
-        emit tabChanged(previous, tab);
-
-    }
+    if (displayNow)
+        this->setCurrentTab(tab);
 
     return tab;
+}
+
+void QTreeTabs::removeItem(const QString& uuid) {
+	this->removeItem(this->tabFromUuid(uuid));
+}
+
+void QTreeTabs::removeItem(OpenTab *tab) {
+	if (tab != NULL) {
+		this->m_map->remove(tab->uuid());
+		// TODO: Closing the last remaining item?
+		if (this->m_map->isEmpty())
+			this->setCurrentTab(NULL);
+		else
+			this->setCurrentTab(this->m_map->first());
+		this->m_widgets->removeWidget(tab->widget());
+		emit closedTab(tab->uuid(), this->m_map->size());
+		delete tab;
+	}
 }
 
 void QTreeTabs::setCurrentTab(const QString &uuid)
@@ -86,10 +99,16 @@ void QTreeTabs::setCurrentTab(OpenTab *tab)
         if (this->m_widgets->indexOf(tab->widget()) != -1) {
             this->m_widgets->setCurrentWidget(tab->widget());
             OpenTab* previous = this->m_currentTab;
+            QString oldUuid = "";
+            if ( previous != NULL ) oldUuid = previous->uuid();
             this->m_currentTab = tab;
-            emit tabChanged(previous, tab);
+            emit tabChanged(oldUuid, tab->uuid());
         }
-    }
+    } else {
+		this->m_widgets->setCurrentWidget(NULL);
+		emit tabChanged(this->m_currentTab->uuid(), "");
+		this->m_currentTab = NULL;
+	}
 }
 
 OpenTab* QTreeTabs::currentTab() const {
@@ -135,11 +154,5 @@ void QTreeTabs::jsRequestTab()
 }
 
 void QTreeTabs::jsRequestClose(const QString& uuid) {
-	OpenTab* tab = this->tabFromUuid(uuid);
-	this->m_map->remove(uuid);
-	if ( tab != NULL ) {
-		this->m_widgets->removeWidget(tab->widget());
-		emit closedTab(uuid, this->m_map->size());
-		delete tab;
-	}
+	this->removeItem(uuid);
 }
