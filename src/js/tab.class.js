@@ -42,7 +42,11 @@ Tab.prototype.removeTab = function(uuid, remainint) {
 }
 
 Tab.prototype.progTabChanged = function(oldUuid, newUuid) {
-	this.dom.text(this.__uuid);
+	if (this.__uuid == newUuid) {
+		this.dom.addClass('active');
+	} else {
+		this.dom.removeClass('active');
+	}
 }
 
 /**
@@ -66,9 +70,4 @@ Tab.prototype.click = function(event) {
 Tab.prototype.requestClose = function() {
 	this.__god.jsRequestClose(this.__uuid);
 	return false;
-}
-
-Tab.prototype.activate = function() {
-	jQuery('.tab').removeClass('active');
-	this.dom.addClass('active');
 }
