@@ -1,67 +1,61 @@
-function Tab(uuid, channel) {
+function Tab(uuid, tabCreator) {
 	// Create the dom item and add it to the element
 	this.dom = qtab.template.clone();
 	this.text = this.dom.find('span');
 	qtab.doc.append(this.dom);
 	this.dom.show();
 
-	this.__listeners = [];
+	// Save private values to use later
+	this.__god = tabCreator.god;
 	this.__uuid = uuid;
 
-	// Listen to events from on high
-	if ( channel && channel.onTextChanged ) {
-		console.error('Code works, now');
-		channel.onTextChanged.connect(this.progTextChanged.bind(this));
-	}
-
 	// Add listeners to my dom
-	this.dom.click(this.__onClick.bind(this));
-	this.dom.dblclick(fn);
+	this.dom.on('mouseup', this.middleClick.bind(this));
+	this.dom.dblclick(this.requestClose.bind(this));
+
+	// Listen for signals from the C++ side
+	this.__god.textChanged.connect(this.progTextChanged.bind(this));
+	this.__god.iconUrlChanged.connect(this.progIconUrlChanged.bind(this));
+	this.__god.closedTab.connect(this.removeTab.bind(this));
 
 	return this;
 }
 
-/* Listeners for events from the C++ world */
-Tab.prototype.progTextChanged = function(text) {
-	this.text.text(text);
+/**
+ * Listeners for events from the C++ world
+ */
+Tab.prototype.progTextChanged = function(uuid, text) {
+	if (this.__uuid == uuid)
+		this.text.text(text);
 }
 
-Tab.prototype.progIconUrlChanged = function(url) {
-	this.dom.css('background-image', 'url(' + url + ')');
+Tab.prototype.progIconUrlChanged = function(uuid, url) {
+	if (this.__uuid == uuid)
+		this.dom.css('background-image', 'url(' + url + ')');
 }
 
-/* Listeners for events from the HTML world */
-Tab.prototype.__onClick = function(event) {
-	switch (event.button) {
-		case 0:
-			this.__notifyListeners();
-			break;
-		case 1:
-			break;
-		case 2:
-			// TODO: Write custom menu
-			break;
+Tab.prototype.removeTab = function(uuid, remainint) {
+	if (this.__uuid == uuid)
+		this.dom.remove();
+}
+
+/**
+ * Listeners for events from the HTML world
+ */
+Tab.prototype.middleClick = function(event) {
+	if(event.which == 2) {
+		this.requestClose();
+		return false;
 	}
-
-	return false; // Don't bubble events out of the tab
 }
 
-/* Our own event handlers */
-Tab.prototype.click = function(callback) {
-	this.__listeners.push(callback);
+/**
+ * Send events to the C++ world
+ */
+Tab.prototype.requestClose = function() {
+	this.__god.jsRequestClose(this.__uuid);
 }
 
-Tab.prototype.__notifyListeners = function() {
-	this.__listeners.forEach(function(element) {
-		try {
-			element(this.__uuid);
-		} catch(err) {
-			console.error(err);
-		}
-	}.bind(this));
-}
-
-/* General member methods */
 Tab.prototype.activate = function() {
 	jQuery('.tab').removeClass('active');
 	this.dom.addClass('active');

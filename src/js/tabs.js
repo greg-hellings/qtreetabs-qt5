@@ -30,7 +30,7 @@ jQuery(function() {
 		qtab.god = channel.objects.god;
 		qtab.doc.html('');
 
-		qtab.mouseListener(qtab.doc, qtab.god.onTabRequested);
+		qtab.mouseListener(qtab.doc, qtab.god.jsRequestTab);
 
 		// Listen to god and add a new tab when he tells us to
 		qtab.godListener = new TabCreator(qtab.god);

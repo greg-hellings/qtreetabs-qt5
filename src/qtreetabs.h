@@ -32,17 +32,16 @@ public:
 signals:
     void tabCreated(const QString& uuid);
     void tabRequested();
-    // Signifies that the text from an underlying tab has changed. Should only be called
-    // by the JavaScript code that's part of this widget. This signal is a hack around a
-    // limitation of the QWebChannel code. If that code is ever updated, then this signal
-    // will probably go away
     void textChanged(const QString& uuid, const QString& text);
     void iconUrlChanged(const QString& uuid, const QString& url);
     void tabChanged(OpenTab* oldTab,  OpenTab* newTab);
-//    void closedTab(int topLevelTabsRemaining);
+    void closedTab(const QString& uuid, int topLevelTabsRemaining);
 
 public slots:
-    void onTabRequested();
+	// Specifically to hear from the JavaScript
+    void jsRequestTab();
+    void jsRequestClose(const QString& uuid);
+	// Specifically to send from the tab to the JavaScript
     void onTextChanged(const QString& text);
     void onIconUrlChanged(const QString& url);
     void setCurrentTab(const QString& uuid);
