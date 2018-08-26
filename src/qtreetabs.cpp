@@ -24,12 +24,6 @@ QTreeTabs::QTreeTabs(QWidget *parent) :
 	ui(new Ui::QTreeTabs)
 {
 	ui->setupUi(this);
-	// Setup the basic layout
-//	QSplitter* splitter = new QSplitter(Qt::Orientation::Horizontal, this);
-//	this->m_tabs = new QWebEngineView(splitter);
-//	this->m_tabs->setMinimumWidth(80);
-//	this->m_widgets = new QStackedWidget(splitter);
-//	this->m_widgets->setMinimumWidth(300);
 
 	// Create and configure the QWebChannel for communication between the
 	// JavaScript in the tabs view and ourselves
