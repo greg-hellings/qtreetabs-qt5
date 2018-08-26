@@ -12,6 +12,10 @@ class QStackedWidget;
 class QWebEngineProfile;
 class QWebChannel;
 
+namespace Ui {
+    class QTreeTabs;
+}
+
 class QTreeTabs : public QWidget
 {
     Q_OBJECT
@@ -45,12 +49,11 @@ public slots:
     void removeItem(const QString& uuid);
 
 private:
-    QWebEngineView* m_tabs;
-    QStackedWidget* m_widgets;
     QWebEngineProfile* m_profile;
     OpenTab* m_currentTab;
     QMap<QString, OpenTab*>* m_map;
     QWebChannel* m_channel;
+    Ui::QTreeTabs* ui;
 };
 
 #endif // MAINTABS_H

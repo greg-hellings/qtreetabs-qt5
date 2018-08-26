@@ -1,4 +1,5 @@
 #include "qtreetabs.h"
+#include "ui_qtreetabs.h"
 
 #include "opentab.h"
 #include "js/localscript.h"
@@ -19,14 +20,16 @@ QTreeTabs::QTreeTabs(QWidget *parent) :
 	QWidget(parent),
 	m_profile(new QWebEngineProfile("tabs", this)),
 	m_currentTab(NULL),
-	m_map(new QMap<QString, OpenTab*>())
+	m_map(new QMap<QString, OpenTab*>()),
+	ui(new Ui::QTreeTabs)
 {
+	ui->setupUi(this);
 	// Setup the basic layout
-	QSplitter* splitter = new QSplitter(Qt::Orientation::Horizontal, this);
-	this->m_tabs = new QWebEngineView(splitter);
-	this->m_tabs->setMinimumWidth(80);
-	this->m_widgets = new QStackedWidget(splitter);
-	this->m_widgets->setMinimumWidth(300);
+//	QSplitter* splitter = new QSplitter(Qt::Orientation::Horizontal, this);
+//	this->m_tabs = new QWebEngineView(splitter);
+//	this->m_tabs->setMinimumWidth(80);
+//	this->m_widgets = new QStackedWidget(splitter);
+//	this->m_widgets->setMinimumWidth(300);
 
 	// Create and configure the QWebChannel for communication between the
 	// JavaScript in the tabs view and ourselves
@@ -34,10 +37,10 @@ QTreeTabs::QTreeTabs(QWidget *parent) :
 	this->m_channel->registerObject("god", this);
 
 	// Create the WebEngine instance that will do the Lord's work
-	QWebEnginePage* page = new QWebEnginePage(this->m_profile, this->m_tabs);
-	this->m_tabs->setPage(page);
+	QWebEnginePage* page = new QWebEnginePage(this->m_profile, this->ui->m_tabs);
+	this->ui->m_tabs->setPage(page);
 	Q_INIT_RESOURCE(web);
-	this->m_tabs->setUrl(QUrl("qrc:///tabs.html"));
+	this->ui->m_tabs->setUrl(QUrl("qrc:///tabs.html"));
 	page->setWebChannel(this->m_channel);
 
 	qRegisterMetaType<OpenTab*>();
@@ -61,7 +64,7 @@ OpenTab* QTreeTabs::addItem(QWidget *widget, bool childOfActive, bool displayNow
 	tab->connect(tab, &OpenTab::onIconUrlChanged, this, &QTreeTabs::onIconUrlChanged);
 
 	this->m_map->insert(tab->uuid(), tab);
-	this->m_widgets->addWidget(widget);
+	this->ui->m_widgets->addWidget(widget);
 	// Notify listeners of new tab creation
 	emit tabCreated(tab->uuid());
 	if (displayNow)
@@ -82,7 +85,7 @@ void QTreeTabs::removeItem(OpenTab *tab) {
 			this->setCurrentTab(NULL);
 		else
 			this->setCurrentTab(this->m_map->first());
-		this->m_widgets->removeWidget(tab->widget());
+		this->ui->m_widgets->removeWidget(tab->widget());
 		emit closedTab(tab->uuid(), this->m_map->size());
 		delete tab;
 	}
@@ -90,14 +93,14 @@ void QTreeTabs::removeItem(OpenTab *tab) {
 
 void QTreeTabs::setCurrentTab(const QString &uuid)
 {
-    this->setCurrentTab(this->tabFromUuid(uuid));
+	this->setCurrentTab(this->tabFromUuid(uuid));
 }
 
 void QTreeTabs::setCurrentTab(OpenTab *tab)
 {
 	if (tab != NULL) {
-		if (this->m_widgets->indexOf(tab->widget()) != -1) {
-			this->m_widgets->setCurrentWidget(tab->widget());
+		if (this->ui->m_widgets->indexOf(tab->widget()) != -1) {
+			this->ui->m_widgets->setCurrentWidget(tab->widget());
 			OpenTab* previous = this->m_currentTab;
 			QString oldUuid = "";
 			if ( previous != NULL ) oldUuid = previous->uuid();
@@ -105,7 +108,7 @@ void QTreeTabs::setCurrentTab(OpenTab *tab)
 			emit tabChanged(oldUuid, tab->uuid());
 		}
 	} else {
-		this->m_widgets->setCurrentWidget(NULL);
+		this->ui->m_widgets->setCurrentWidget(NULL);
 		emit tabChanged(this->m_currentTab->uuid(), "");
 		this->m_currentTab = NULL;
 	}

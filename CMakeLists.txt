@@ -35,6 +35,8 @@ set(HEADERS
 set(DIST_HEADERS
     src/qtreetabs.h
     src/opentab.h)
+set(UI
+    src/qtreetabs.ui)
 
 # Versioning information
 set(qtreetabs_version_major "0")
@@ -54,8 +56,12 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/")
 add_definitions(${Qt5Core_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS} ${Qt5WebEngineWidgets_EXECUTABLE_COMPILE_FLAGS} -fPIC")
 
+# Prebuild
+#qt5_wrap_cpp(MOCS ${HEADERS})
+qt5_wrap_UI(UI_SRC ${UI})
+
 # Add library
-add_library(qtreetabs SHARED ${CXX_SRC} ${QRC_SRC})
+add_library(qtreetabs SHARED ${CXX_SRC} ${QRC_SRC} ${UI_SRC})
 target_link_libraries(qtreetabs Qt5::WebEngineWidgets Qt5::Widgets)
 # Installs
 install(TARGETS qtreetabs
