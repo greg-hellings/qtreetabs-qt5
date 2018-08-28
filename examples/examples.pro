@@ -1,7 +1,7 @@
 include(../qtreetabs.pri)
 
 TEMPLATE = app
+TARGET = basic
 SOURCES = basic.cpp
 FORMS = basic.ui
-TARGET = basic
 LIBS += -lqtreetabs

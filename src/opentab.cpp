@@ -19,6 +19,7 @@ OpenTab::OpenTab(QWidget* view, const QString& uuid) :
 }
 
 OpenTab::OpenTab(const OpenTab &other) :
+	QObject(other.parent()),
     m_widget(other.m_widget),
     m_uuid(other.m_uuid),
     m_text(other.m_text),
