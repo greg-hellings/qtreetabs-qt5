@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QList>
 #include <QMap>
+#include <QtUiPlugin/QDesignerExportWidget>
 
 // Advanced declarations
 class OpenTab;
@@ -16,7 +17,7 @@ namespace Ui {
     class QTreeTabs;
 }
 
-class QTreeTabs : public QWidget
+class QDESIGNER_WIDGET_EXPORT QTreeTabs : public QWidget
 {
     Q_OBJECT
 public:
